@@ -8,10 +8,11 @@
 <body>
 <?php
 require __DIR__ .'/vendor/autoload.php'; 
+include('connect.php'); 
 ?>
 <?php
-setcookie("verifier_c", "", time()-3600,"/");
-setcookie("nonce_c", "", time()-3600,"/");
+//setcookie("verifier_c", "", time()-3600,"/");
+//setcookie("nonce_c", "", time()-3600,"/"); 
  $scope='openid';
  $serviceId='10000xxxx';
  $aeskey='xxxx59f6-0617-4898-b859-8bb02fexxxxx';
@@ -24,19 +25,32 @@ setcookie("nonce_c", "", time()-3600,"/");
  //nonce
  $nonce= bin2hex(random_bytes(16));
 
- setcookie("nonce_c", "$nonce", time() + 3600, "/");
+ //setcookie("nonce_c", "$nonce", time() + 3600, "/");
 
  //verifier
  $verifier_bytes = random_bytes(64);
  
  $code_verifier = rtrim(strtr(base64_encode($verifier_bytes), "+/", "-_"), "=");
  
- setcookie("verifier_c", "$code_verifier", time() + 3600, "/");
+// setcookie("verifier_c", "$code_verifier", time() + 3600, "/");
  
 //code challenge
 $challenge_bytes = hash("sha256", $code_verifier, true);
 
 $code_challenge = rtrim(strtr(base64_encode($challenge_bytes), "+/", "-_"), "=");
+
+$sql = "INSERT INTO oidc_integration (stateId, nonce, code_verifier) VALUES ('$state', '$nonce', '$code_verifier')";
+
+ // Execute the query
+ if ($conn->query($sql) === TRUE) {
+     echo "Record inserted successfully";
+ } else {
+     echo "Error: " . $sql . "<br>" . $conn->error;
+ }
+ 
+ // Close the database connection
+ $conn->close();
+
  
  $input=$serviceId.$aeskey.$state.$nonce.$redirect_uri.$scope.$code_challenge;
 

@@ -18,7 +18,7 @@ $sessionId=$data->session_id;
 $sub=$data->sub; 
 $clientId='10000xxxx';
 $iss='ePramaan';
- 
+$aeskey='xxxx59f6-0617-48xx-b859-8bb02feexxxx';
    if (!isset($_SESSION['logoutRequestId'])) {
     $_SESSION['logoutRequestId'] = bin2hex(random_bytes(16));
 }
@@ -26,10 +26,10 @@ $logoutRequestId = $_SESSION['logoutRequestId'];
    echo 'logout req id--'.$logoutRequestId;
    $redirectUrl='http://localhost/login/login.php';
    
-   $input=$clientId.$sessionId.$iss.$logoutRequestId.$sub.$redirectUrl;
+   $input=$clientId.$sessionId.$iss.$aeskey.$sub.$redirectUrl;
  
    echo 'input-->'.$input;
-    $apiHmac=hashHMACHex($logoutRequestId,$input);
+    $apiHmac=hashHMACHex($aeskey,$input);
    echo '<br>';
    $customParameter='';
    

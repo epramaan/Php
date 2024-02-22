@@ -1,7 +1,7 @@
 <?php
 
 require __DIR__ .'/vendor/autoload.php';
-
+include('connect.php'); 
 use Jose\Component\Encryption\JWEDecrypterFactory;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Encryption\Algorithm\KeyEncryption\A256KW;
@@ -23,8 +23,29 @@ setcookie("decryptedtoken_c", "", time()-3600,"/");
 echo $code;
 echo "------------------------------";
 
-$verifier = $_COOKIE["verifier_c"];
+//$verifier = $_COOKIE["verifier_c"];
+$sql = "SELECT stateId, nonce, code_verifier FROM oidc_integration ORDER BY timestamp DESC LIMIT 1";
 
+// Execute the query
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    // Output data of each row
+    while($row = $result->fetch_assoc()) {
+        $state = $row["stateId"];
+        $nonce = $row["nonce"];
+        $verifier = $row["code_verifier"];
+        // Do whatever you want with the retrieved values
+        echo "State: " . $state . "<br>";
+        echo "Nonce: " . $nonce . "<br>";
+        echo "Code Verifier: " . $verifier . "<br>";
+    }
+} else {
+    echo "0 results";
+}
+
+// Close the database connection
+$conn->close();
 echo "<br/>";
  $nonce=$_COOKIE["nonce_c"];
 $epramaanRequestTokenUrl='https://epstg.meripehchaan.gov.in/openid/jwt/processJwtTokenRequest.do';
@@ -80,7 +101,7 @@ $keyEncryptionAlgorithmManager = new AlgorithmManager([
         new Deflate(),
     
     ]);
-  $nonce=$_COOKIE["nonce_c"];
+  //$nonce=$_COOKIE["nonce_c"];
   echo '<br>';
 
   $sha25=hash('SHA256',$nonce,true);
